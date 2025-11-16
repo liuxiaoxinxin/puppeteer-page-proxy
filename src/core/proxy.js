@@ -27,6 +27,21 @@ const requestHandler = async (request, proxy, overrides = {}) => {
     };
     try {
         const response = await got(overrides.url || request.url(), options);
+
+        if (overrides.conversionProxyHandler) {
+            const conversionCodes = overrides.conversionCodes || [407, 408];
+            // check if the response code is in the conversion codes
+            // if so, call the conversion proxy handler to get a new proxy
+            // if the new proxy is not null, set the proxy to the new proxy and continue the request
+            if (conversionCodes.includes(response.statusCode)) {
+                const newProxy = await overrides.conversionProxyHandler(response);
+                if (newProxy) {
+                    await requestHandler(request, newProxy, overrides);
+                    return;
+                }
+            }
+        }
+
         const setCookieHeader = response.headers["set-cookie"];
         if (setCookieHeader) {
             await cookieHandler.setCookies(setCookieHeader);
@@ -74,10 +89,15 @@ const useProxyPer = {
                     delete data.proxy;
                     overrides = data;
                 }
-            } else {proxy = data}
+            } else {
+                proxy = data;
+            }
             // Skip request if proxy omitted
-            if (proxy) {await requestHandler(request, proxy, overrides)}
-            else {request.continue(overrides)}
+            if (proxy) {
+                await requestHandler(request, proxy, overrides)
+            } else {
+                request.continue(overrides)
+            }
         }catch(error){
             //ignore
         }

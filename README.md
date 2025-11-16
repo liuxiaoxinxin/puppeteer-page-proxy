@@ -2,6 +2,8 @@
 ![node-current](https://img.shields.io/node/v/puppeteer?style=flat-square)
 ![npm](https://img.shields.io/npm/dt/puppeteer-page-proxy?style=flat-square)
 
+Add Proxy failure retry, better applicable to short-duration proxy ips.
+
 Fixed fork of Cuadrix/puppeteer-page-proxy.
 
 # puppeteer-page-proxy <img src="https://i.ibb.co/kQrN9QJ/puppeteer-page-proxy-logo.png" align="right" width="150" height="150">
